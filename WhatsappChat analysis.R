@@ -1,0 +1,26 @@
+lib=c('tm','plyr','class','stringr','wordcloud')
+lapply(lib,require,character.only=T)
+setwd("C:\\Users\\nirva\\IdeaProjects\\R\\Whatsapp chat analysis")
+
+text=readLines("depressing story.txt")
+text1=gsub(" ?(f|ht)tp(s?)://(.*)[.|/|&|=][a-zA-z0-9|-]*", "", text)
+text2=gsub("[0-9]{2}/[0-9]{2}/[0-9]{4}, .*[:]",replacement = " ",text1)
+text3=gsub(pattern = "\\W",replacement = " ",text2)
+text4= iconv(text3,"latin1","ASCII",sub = "")
+text5=tolower(text4)
+text6=gsub("\\d",replacement = "",text5)
+text7=removeWords(text6,stopwords('en'))
+text7=removeWords(text7,c('media','omitted','hai'))
+text8=gsub("\\b[A-z]\\b{1}",replacement = "",text7)
+
+text9=stripWhitespace(text8)
+text9=paste(text9,collapse = " ",sep = " ")
+words=str_split(text9,pattern = "\\s+")
+words=unlist(words)
+wordcloud(words,random.order=FALSE,max.words = 200, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+pos.words=scan('positive-words.txt',what = 'character',comment.char = ";")
+neg.words=scan('negative-words.txt',what = 'character',comment.char = ";")
+
+sentimental_score=sum(!is.na(match(words,pos.words)))-sum(!is.na(match(words,neg.words)))
+print(sentimental_score)
